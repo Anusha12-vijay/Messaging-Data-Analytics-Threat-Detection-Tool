@@ -1,3 +1,6 @@
+import re
+import pandas as pd
+
 def preprocess(data):
     pattern = r'\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}\s-\s'
     messages = re.split(pattern, data)[1:]
@@ -31,6 +34,8 @@ def preprocess(data):
         df['day'] = df['date'].dt.day
         df['hour'] = df['date'].dt.hour
         df['minute'] = df['date'].dt.minute
+
+        return df
 
 
 
