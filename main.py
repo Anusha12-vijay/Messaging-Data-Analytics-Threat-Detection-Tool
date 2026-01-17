@@ -13,7 +13,6 @@ if uploaded_file is not None:
     # st.text(data)
     df=preprocessor.preprocess(data)
 
-    st.dataframe(df)
 
     #fetch unique users
     user_list =df['user'].unique().tolist()
@@ -22,10 +21,15 @@ if uploaded_file is not None:
     user_list.insert(0,"Overall Group")
 
     selected_user=st.sidebar.selectbox("Show analysis for ",user_list)
+    st.title("General Analysis")
 
     if st.sidebar.button("Show Analysis"):
+
+        #numerical Analysis
         num_messages,words,num_media_messages,num_links =helper.fetch_stats(selected_user,df)
         col1 ,col2,col3,col4 = st.columns(4)
+
+
         with col1:
             st.header("Total Messages")
             st.title(num_messages)
@@ -38,6 +42,23 @@ if uploaded_file is not None:
         with col4:
             st.header("Links shared")
             st.title(num_links)
+
+        #monthly timeline
+        st.title("Monthly Timeline")
+        timeline=helper.monthly_timeline(selected_user,df)
+        fig,ax = plt.subplots()
+        ax.plot(timeline['time'],timeline['message'],color='green')
+        plt.xticks(rotation='vertical')
+        st.pyplot(fig)
+
+        #Daily timeline
+        st.title("Daily Timeline")
+        daily_timeline = helper.daily_timeline(selected_user, df)
+        fig, ax = plt.subplots()
+        ax.plot(daily_timeline['date_'], daily_timeline['message'], color='green')
+        plt.xticks(rotation='vertical')
+        st.pyplot(fig)
+
 
         #finding the busiest users in the group(Group Level)
 
