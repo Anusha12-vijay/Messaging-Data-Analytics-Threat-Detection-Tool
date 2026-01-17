@@ -3,6 +3,7 @@ import re
 import preprocessor
 import helper
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 st.sidebar.title("Messaging Data Analytics & Threat Detection Tool")
 
@@ -30,18 +31,24 @@ if uploaded_file is not None:
         col1 ,col2,col3,col4 = st.columns(4)
 
 
-        with col1:
-            st.header("Total Messages")
-            st.title(num_messages)
-        with col2:
-            st.header("Total Words")
-            st.title(words)
-        with col3:
-            st.header("Media shared")
-            st.title(num_media_messages)
-        with col4:
-            st.header("Links shared")
-            st.title(num_links)
+        # with col1:
+        #     st.header("Total Messages")
+        #     st.title(num_messages)
+        # with col2:
+        #     st.header("Total Words")
+        #     st.title(words)
+        # with col3:
+        #     st.header("Media shared")
+        #     st.title(num_media_messages)
+        # with col4:
+        #     st.header("Links shared")
+        #     st.title(num_links)
+        col1, col2, col3, col4 = st.columns(4)
+
+        col1.metric("Total Messages", num_messages)
+        col2.metric("Total Words", words)
+        col3.metric("Media Shared", num_media_messages)
+        col4.metric("Links Shared", num_links)
 
         #monthly timeline
         st.title("Monthly Timeline")
@@ -59,6 +66,39 @@ if uploaded_file is not None:
         plt.xticks(rotation='vertical')
         st.pyplot(fig)
 
+        #activity map
+        st.title('Activity Map')
+        col1,col2 = st.columns(2)
+
+        with col1:
+            st.header("Most Busy Day")
+            busy_day=helper.week_activity_map(selected_user,df)
+            fig,ax=plt.subplots()
+            ax.bar(busy_day.index,busy_day.values)
+            plt.xticks(rotation='vertical')
+            st.pyplot(fig)
+
+        with col2:
+            st.header("Most Busy Month")
+            busy_month = helper.month_activity_map(selected_user, df)
+            fig, ax = plt.subplots()
+            ax.bar(busy_month.index, busy_month.values,color='purple')
+            plt.xticks(rotation='vertical')
+            st.pyplot(fig)
+
+        st.title("Weekly Activity Map")
+        user_heatmap=helper.activity_heatmap(selected_user,df)
+        fig, ax = plt.subplots(figsize=(14, 6))
+        sns.heatmap(
+            user_heatmap,
+            cmap='rocket',
+            linewidths=0.5,
+            annot=False
+        )
+        ax.set_title('Weekly Activity Heatmap', fontsize=16)
+        ax.set_xlabel('Time Period')
+        ax.set_ylabel('Day')
+        st.pyplot(fig)
 
         #finding the busiest users in the group(Group Level)
 
@@ -85,10 +125,20 @@ if uploaded_file is not None:
             #most common words
             most_common_words=helper.most_common_words(selected_user,df)
 
-            fig,ax=plt.subplots()
-            ax.bar(most_common_words[0],most_common_words[1])
-            plt.xticks(rotation='vertical')
             st.title('Most Common Words')
+
+            fig, ax = plt.subplots(figsize=(10, 5))
+            ax.barh(
+                most_common_words['Word'],
+                most_common_words['Frequency']
+            )
+            ax.invert_yaxis()
+
+            plt.xticks(rotation=45)
+            ax.set_xlabel('Words')
+            ax.set_ylabel('Frequency')
+            st.pyplot(fig)
+
             st.dataframe(most_common_words)
 
             #emoji analysis

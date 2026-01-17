@@ -73,7 +73,10 @@ def most_common_words(selected_user,df):
             if word not in stop_words:
                 words.append(word)
 
-    most_common_words=pd.DataFrame(Counter(words).most_common(20))
+    most_common_words=pd.DataFrame(
+        Counter(words).most_common(20),
+        columns=['Word', 'Frequency']
+    )
     return most_common_words
 
 def emoji_helper(selected_user,df):
@@ -86,7 +89,10 @@ def emoji_helper(selected_user,df):
             if emoji.is_emoji(char):
                 emojis.append(char)
 
-    emoji_df =pd.DataFrame(Counter(emojis).most_common(len(emojis)))
+    emoji_df =pd.DataFrame(
+        Counter(emojis).most_common(len(emojis)),
+        columns = ['Emoji', 'Count']
+    )
 
     return emoji_df
 
@@ -112,6 +118,40 @@ def daily_timeline(selected_user,df):
 
     return daily_timeline
 
+def week_activity_map(selected_user,df):
+    if selected_user != 'Overall Group':
+        df=df[df['user']==selected_user]
+
+    return df['day_name'].value_counts()
+
+def month_activity_map(selected_user,df):
+    if selected_user != 'Overall Group':
+        df=df[df['user']==selected_user]
+
+    return df['month'].value_counts()
 
 
+
+def activity_heatmap(selected_user, df):
+    if selected_user != 'Overall Group':
+        df = df[df['user'] == selected_user]
+
+    heatmap_data = df.pivot_table(
+        index='day_name',
+        columns='period',
+        values='message',
+        aggfunc='count'
+    ).fillna(0)
+
+    # Proper day order
+    day_order = [
+        'Monday', 'Tuesday', 'Wednesday',
+        'Thursday', 'Friday', 'Saturday', 'Sunday'
+    ]
+    heatmap_data = heatmap_data.reindex(day_order)
+
+    # Sort hours correctly
+    heatmap_data = heatmap_data.sort_index(axis=1)
+
+    return heatmap_data
 
