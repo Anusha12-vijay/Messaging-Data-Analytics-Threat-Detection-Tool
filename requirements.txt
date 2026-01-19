@@ -7,5 +7,4 @@ wordcloud
 emoji
 urlextract
 scikit-learn
-Counter
-re
+
